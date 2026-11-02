@@ -1,0 +1,114 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=0.8in]{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage{hyperref}
+\usepackage{microtype}
+
+\title{Directed Food-Web Network Analysis}
+\author{Model Based Decisions --- Network Analysis Assignment}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This report analyzes the directed Florida Bay food-web network distributed by SNAP. Its 128 nodes are compartments and its 2,106 directed edges represent carbon transfer from one compartment to another. We examine direction-aware connectivity, node centrality, group summaries, and undirected reference models. Because edges are binary and unweighted, the analysis describes the presence of links, not the magnitude of carbon flow.
+\end{abstract}
+
+\section{Dataset and network definition}
+
+The edge list and node metadata are distributed on the \href{https://snap.stanford.edu/data/Florida-bay.html}{SNAP Florida Bay food-web page}. The source describes an edge from $i$ to $j$ as carbon transfer from compartment $i$ to compartment $j$; the SNAP description says that $j$ consumes carbon from $i$, often corresponding to $j$ eating $i$. The 128 compartments are mostly organisms, but include special entries such as Input, Output, and Respiration. Metadata supplies names and group classifications; 66 nodes have no group label.
+
+The downloaded files contain 128 metadata records and 2,106 unique directed edges, with no self-loops and no edge endpoints missing metadata. The graph is weakly connected. Group labels are included in the supplementary metadata and described as derived from ATLSS.
+
+\section{Direction-aware network structure}
+
+Table~\ref{tab:summary} reports graph measures computed from the directed graph. In-degree counts incoming carbon-transfer links; out-degree counts outgoing links. The average path length and diameter are computed using directed shortest paths within the largest strongly connected component (SCC), since directed paths may not exist between all pairs in the full graph.
+
+\begin{table}[H]
+\centering
+\caption{Summary of the directed network.}
+\label{tab:summary}
+\begin{tabular}{lr}
+\toprule
+Measure & Value\\
+\midrule
+Nodes ($N$) & 128\\
+Directed edges ($M$) & 2,106\\
+Average in-degree & 16.45\\
+Average out-degree & 16.45\\
+Directed density & 0.1296\\
+Reciprocity & 0.0294\\
+Directed average clustering & 0.1767\\
+Undirected-projection clustering & 0.3346\\
+Largest weak component & 128 (100\%)\\
+Largest strongly connected component & 103 (80.5\%)\\
+Average directed path length (largest SCC) & 2.487\\
+Directed diameter (largest SCC) & 4\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The low reciprocity indicates that only a small fraction of directed connections have a corresponding reverse connection. The directed clustering coefficient is lower than the clustering of the undirected projection, as expected when direction constrains which triples count as closed. The full graph is weakly connected, but only 103 compartments are mutually reachable in both directions. The SNAP page reports an undirected diameter of 3; the diameter of 4 here is for directed paths in the largest SCC, so the two values use different path definitions.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\linewidth]{../results/img/degree_distribution.png}
+\caption{In-degree and out-degree distributions in the directed graph.}
+\end{figure}
+
+\section{Reference-model comparison}
+
+The Watts--Strogatz and Barab\'asi--Albert models are conventionally undirected, so the ER, WS, and BA references are compared to the simple undirected projection of the empirical network. This comparison is about undirected connectivity patterns; it does not assess whether the models reproduce the food web's flow direction. The projected network has 128 nodes and 2,075 edges.
+
+\begin{table}[H]
+\centering
+\small
+\caption{Undirected projection and reference-model statistics.}
+\label{tab:models}
+\begin{tabular}{lrrrrrr}
+\toprule
+Network & $N$ & $M$ & $\langle k\rangle$ & Density & $\langle C\rangle$ & $\langle L\rangle$\\
+\midrule
+Empirical projection & 128 & 2,075 & 32.42 & 0.2553 & 0.3346 & 1.776\\
+Erd\H{o}s--R\'enyi & 128 & 2,041 & 31.89 & 0.2511 & 0.2531 & 1.749\\
+Watts--Strogatz & 128 & 2,048 & 32.00 & 0.2520 & 0.6452 & 1.955\\
+Barab\'asi--Albert & 128 & 1,792 & 28.00 & 0.2205 & 0.3270 & 1.783\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The empirical projection is more clustered than the ER reference and has clustering close to the BA reference; the WS reference is substantially more clustered under the selected rewiring parameter. The average path lengths are similar across these dense graphs. These are descriptive comparisons with single seeded reference graphs, not statistical hypothesis tests.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\linewidth]{../results/img/model_comparison.png}
+\caption{Degree distributions for the empirical undirected projection and reference models.}
+\end{figure}
+
+\section{Centrality and compartment roles}
+
+In-degree identifies compartments receiving carbon-transfer links from many other compartments; out-degree identifies compartments that transfer carbon to many destinations. In this dataset, Respiration has the largest in-degree (110), while Herbivorous Shrimp and Predatory Shrimp share the largest out-degree (62). These are counts of distinct linked compartments, not carbon amounts. The high in-degree of Respiration also illustrates why special non-organism compartments must be considered when interpreting rankings.
+
+Directed betweenness identifies nodes that occur on many directed shortest paths. Water POC has the highest betweenness (0.384), followed by Benthic POC (0.158). The highest outward closeness scores belong to Herbivorous Shrimp and Predatory Shrimp, while Respiration has the highest PageRank in this graph. Full top-ten rankings for each measure are provided in \texttt{results/csv/centrality\_table.csv}.
+
+\section{Group-level patterns}
+
+The metadata classifies 62 of the 128 nodes into groups; the remaining 66 are labeled Unclassified in the summary rather than dropped. Macroinvertebrates have a mean out-degree of 34.95, higher than their mean in-degree of 8.86. Detritus compartments have a mean in-degree of 43.00. These comparisons summarize link counts among compartments, and group sizes vary substantially. In particular, some labeled groups have only one or two nodes, so their averages should not be treated as stable group-level estimates. The full table is in \texttt{results/csv/group\_summary.csv}.
+
+\section{Interpretation and limitations}
+
+The graph supports analysis of which compartments have many incoming or outgoing links, which lie on directed paths, and how the ecological groups are positioned in the binary network. It does not show the quantity, timing, or variability of transferred carbon, and therefore cannot establish the magnitude of ecological dependence or the effect of removing a compartment. The special Input, Output, and Respiration nodes are structurally relevant but are not species. A majority of nodes lack group labels, which limits group comparisons. Finally, this is a single modeled ecosystem and a static network; results should not be generalized to other locations or time periods without additional data.
+
+\section{Conclusion}
+
+The directed network is weakly connected, while its largest strongly connected component contains 80.5\% of compartments. The low reciprocity and difference between in- and out-degree at particular nodes show why preserving edge direction matters. Its undirected projection is more clustered than the ER reference, but this benchmark comparison deliberately ignores direction. Centrality and group summaries identify structural patterns for follow-up ecological investigation, not direct measures of biomass, carbon-flow intensity, or species importance.
+
+\section*{Data sources}
+Robert E. Ulanowicz, Cristina Bondavalli, and Michael S. Egnotovich. 1997. \textit{Network Analysis of Trophic Dynamics in South Florida Ecosystems---The Florida Bay Ecosystem}. Annual Report to the U.S. Geological Survey, Biological Resources Division.
+
+Austin R. Benson, David F. Gleich, and Jure Leskovec. 2016. Higher-order Organization of Complex Networks. \textit{Science}, 353(6295), 163--166. \url{https://doi.org/10.1126/science.aad9029}.
+
+\end{document}
