@@ -1,0 +1,28 @@
+# python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# virtual environments
+.venv/
+
+# macOS
+.DS_Store
+
+# datasets and results (populated during runtime)
+data/*.zip
+data/*.gz
+results/csv
+results/img
+
+# latex auxiliary files
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.run.xml
+*.synctex.gz
+*.toc
