@@ -11,7 +11,9 @@ from network_analysis.config import (
 
 
 def load_dataset() -> tuple[pd.DataFrame, pd.DataFrame]:
-    """Load the directed edge list and node metadata, downloading missing files."""
+    """
+    Load the directed edge list and node metadata, downloading missing files.
+    """
     for path, url in (
         (DATASET_PATH, DATASET_URL),
         (DATASET_METADATA_PATH, DATASET_METADATA_URL),

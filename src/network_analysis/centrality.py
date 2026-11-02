@@ -3,7 +3,9 @@ import pandas as pd
 
 
 def compute_centrality_table(graph: nx.DiGraph) -> pd.DataFrame:
-    """Rank nodes by directed degree, betweenness, outward closeness, and PageRank."""
+    """
+    Rank nodes by directed degree, betweenness, outward closeness, and PageRank.
+    """
     measures: dict[str, dict[int, float]] = {
         "in_degree": dict(graph.in_degree()),
         "out_degree": dict(graph.out_degree()),

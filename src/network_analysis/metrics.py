@@ -26,7 +26,9 @@ class NetworkSummary(TypedDict):
 
 
 def describe_network(graph: nx.DiGraph) -> NetworkSummary:
-    """Compute direction-aware measures and path metrics on the largest SCC."""
+    """
+    Compute direction-aware measures and path metrics on the largest SCC.
+    """
     if graph.number_of_nodes() == 0:
         raise ValueError("Cannot compute metrics for an empty graph.")
 
@@ -54,7 +56,9 @@ def describe_network(graph: nx.DiGraph) -> NetworkSummary:
 
 
 def build_model_networks(empirical: nx.Graph) -> dict[str, nx.Graph]:
-    """Build ER, WS, and BA reference graphs for an undirected projection."""
+    """
+    Build ER, WS, and BA reference graphs for an undirected projection.
+    """
     node_count = empirical.number_of_nodes()
     if node_count < 3:
         raise ValueError("At least three nodes are required to generate benchmarks.")
@@ -82,7 +86,9 @@ def build_model_networks(empirical: nx.Graph) -> dict[str, nx.Graph]:
 
 
 def compute_model_comparison(empirical: nx.Graph) -> pd.DataFrame:
-    """Compare undirected structural baselines with the empirical projection."""
+    """
+    Compare undirected structural baselines with the empirical projection.
+    """
     rows = []
     for name, graph in build_model_networks(empirical).items():
         rows.append(
@@ -105,7 +111,9 @@ def compute_model_comparison(empirical: nx.Graph) -> pd.DataFrame:
 
 
 def summarize_groups(graph: nx.DiGraph) -> pd.DataFrame:
-    """Summarize node count and mean in/out degree by available group label."""
+    """
+    Summarize node count and mean in/out degree by available group label.
+    """
     rows = []
     for node in graph:
         attributes = graph.nodes[node]
