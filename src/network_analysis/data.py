@@ -9,26 +9,22 @@ from network_analysis.config import (
     DATASET_URL,
 )
 
-
 def load_dataset() -> tuple[pd.DataFrame, pd.DataFrame]:
     """
-    Load the directed edge list and node metadata, downloading missing files.
+    Loads and processes the dataset and metadata files from the SNAP website.
+
+    Returns
+    -------
+    tuple[pandas.DataFrame, pandas.DataFrame]
+        The edge list and node metadata.
     """
-    for path, url in (
-        (DATASET_PATH, DATASET_URL),
-        (DATASET_METADATA_PATH, DATASET_METADATA_URL),
-    ):
+    for path, url in ((DATASET_PATH, DATASET_URL), (DATASET_METADATA_PATH, DATASET_METADATA_URL)):
         if not path.exists():
-            path.parent.mkdir(parents=True, exist_ok=True)
+            path.parent.mkdir(exist_ok=True)
             with urllib.request.urlopen(url, timeout=60) as response:
                 path.write_bytes(response.read())
 
-    edges = pd.read_csv(
-        DATASET_PATH,
-        sep=r"\s+",
-        comment="#",
-        names=["source", "target"],
-    )
+    edges = pd.read_csv(DATASET_PATH, sep=r"\s+", comment="#", names=["source", "target"],)
     nodes = pd.read_csv(DATASET_METADATA_PATH)
     required_edge_columns = {"source", "target"}
     required_node_columns = {"node_id", "name", "group"}

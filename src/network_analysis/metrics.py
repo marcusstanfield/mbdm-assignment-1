@@ -16,7 +16,7 @@ class NetworkSummary(TypedDict):
     density: float
     reciprocity: float
     directed_clustering: float
-    projection_clustering: float
+    undirected_clustering: float
     largest_wcc_size: int
     largest_wcc_share: float
     largest_scc_size: int
@@ -27,7 +27,18 @@ class NetworkSummary(TypedDict):
 
 def describe_network(graph: nx.DiGraph) -> NetworkSummary:
     """
-    Compute direction-aware measures and path metrics on the largest SCC.
+    Computes direction-aware measures and path metrics on the largest SCC.
+
+    Parameters
+    ----------
+    graph : networkx.DiGraph
+        A directed graph.
+
+    Returns
+    -------
+    NetworkSummary
+        Direction-aware network metrics and path metrics for the largest
+        strongly connected component.
     """
     if graph.number_of_nodes() == 0:
         raise ValueError("Cannot compute metrics for an empty graph.")
@@ -45,7 +56,7 @@ def describe_network(graph: nx.DiGraph) -> NetworkSummary:
         "density": float(nx.density(graph)),
         "reciprocity": float(nx.reciprocity(graph)),
         "directed_clustering": float(nx.average_clustering(graph)),
-        "projection_clustering": float(nx.average_clustering(undirected_projection)),
+        "undirected_clustering": float(nx.average_clustering(undirected_projection)),
         "largest_wcc_size": weak_component.number_of_nodes(),
         "largest_wcc_share": weak_component.number_of_nodes() / node_count,
         "largest_scc_size": strong_component.number_of_nodes(),
@@ -57,7 +68,17 @@ def describe_network(graph: nx.DiGraph) -> NetworkSummary:
 
 def build_model_networks(empirical: nx.Graph) -> dict[str, nx.Graph]:
     """
-    Build ER, WS, and BA reference graphs for an undirected projection.
+    Builds ER, WS, and BA reference graphs for an undirected projection.
+
+    Parameters
+    ----------
+    empirical : networkx.Graph
+        The undirected empirical network projection.
+
+    Returns
+    -------
+    dict[str, networkx.Graph]
+        The empirical projection and generated reference graphs.
     """
     node_count = empirical.number_of_nodes()
     if node_count < 3:
@@ -70,24 +91,27 @@ def build_model_networks(empirical: nx.Graph) -> dict[str, nx.Graph]:
     ba_edges_per_node = min(
         node_count - 1, max(1, int(round(average_degree / 2)))
     )
-
     return {
         "Empirical projection": empirical,
-        "Erdos-Renyi": nx.erdos_renyi_graph(
-            node_count, average_degree / (node_count - 1), seed=RANDOM_SEED
-        ),
-        "Watts-Strogatz": nx.watts_strogatz_graph(
-            node_count, k=ws_degree, p=0.05, seed=RANDOM_SEED
-        ),
-        "Barabasi-Albert": nx.barabasi_albert_graph(
-            node_count, m=ba_edges_per_node, seed=RANDOM_SEED
-        ),
+        "Erdos-Renyi": nx.erdos_renyi_graph(node_count, average_degree / (node_count - 1), seed=RANDOM_SEED),
+        "Watts-Strogatz": nx.watts_strogatz_graph(node_count, k=ws_degree, p=0.05, seed=RANDOM_SEED),
+        "Barabasi-Albert": nx.barabasi_albert_graph(node_count, m=ba_edges_per_node, seed=RANDOM_SEED),
     }
 
 
 def compute_model_comparison(empirical: nx.Graph) -> pd.DataFrame:
     """
-    Compare undirected structural baselines with the empirical projection.
+    Compares undirected structural baselines with the empirical projection.
+
+    Parameters
+    ----------
+    empirical : networkx.Graph
+        The undirected empirical network projection.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Network metrics for the empirical projection and reference graphs.
     """
     rows = []
     for name, graph in build_model_networks(empirical).items():
@@ -96,14 +120,10 @@ def compute_model_comparison(empirical: nx.Graph) -> pd.DataFrame:
                 "Network": name,
                 "Nodes": graph.number_of_nodes(),
                 "Edges": graph.number_of_edges(),
-                "AverageDegree": round(
-                    float(np.mean([degree for _, degree in graph.degree()])), 3
-                ),
+                "AverageDegree": round(float(np.mean([degree for _, degree in graph.degree()])), 3),
                 "Density": round(float(nx.density(graph)), 4),
                 "AverageClustering": round(float(nx.average_clustering(graph)), 4),
-                "AveragePathLength": round(
-                    float(nx.average_shortest_path_length(graph)), 3
-                ),
+                "AveragePathLength": round(float(nx.average_shortest_path_length(graph)), 3),
                 "Diameter": nx.diameter(graph),
             }
         )
@@ -112,7 +132,17 @@ def compute_model_comparison(empirical: nx.Graph) -> pd.DataFrame:
 
 def summarize_groups(graph: nx.DiGraph) -> pd.DataFrame:
     """
-    Summarize node count and mean in/out degree by available group label.
+    Summarizes node count and mean in/out degree by available group label.
+
+    Parameters
+    ----------
+    graph : networkx.DiGraph
+        A directed graph with node group labels.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Node counts and average in- and out-degree for each group.
     """
     rows = []
     for node in graph:

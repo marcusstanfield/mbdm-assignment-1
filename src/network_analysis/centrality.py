@@ -4,7 +4,18 @@ import pandas as pd
 
 def compute_centrality_table(graph: nx.DiGraph) -> pd.DataFrame:
     """
-    Rank nodes by directed degree, betweenness, outward closeness, and PageRank.
+    Ranks nodes by directed degree, betweenness, outward closeness, and PageRank.
+
+    Parameters
+    ----------
+    graph : networkx.DiGraph
+        A directed graph with node metadata.
+
+    Returns
+    -------
+    pandas.DataFrame
+        The top 10 nodes for each centrality measure, with node IDs, names,
+        groups, scores, and metric names.
     """
     measures: dict[str, dict[int, float]] = {
         "in_degree": dict(graph.in_degree()),

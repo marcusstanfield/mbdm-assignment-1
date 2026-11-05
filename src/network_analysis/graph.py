@@ -4,7 +4,19 @@ import pandas as pd
 
 def build_network(edges: pd.DataFrame, nodes: pd.DataFrame) -> nx.DiGraph:
     """
-    Build a directed graph and attach labels from the node metadata.
+    Builds a directed graph and attaches labels from the node metadata.
+
+    Parameters
+    ----------
+    edges : pandas.DataFrame
+        The directed edges, with ``source`` and ``target`` columns.
+    nodes : pandas.DataFrame
+        The node metadata, with ``node_id``, ``name``, and ``group`` columns.
+
+    Returns
+    -------
+    networkx.DiGraph
+        The directed graph with node metadata attached.
     """
     if edges.duplicated(["source", "target"]).any():
         raise ValueError("Dataset contains duplicate directed edges.")
@@ -37,7 +49,17 @@ def build_network(edges: pd.DataFrame, nodes: pd.DataFrame) -> nx.DiGraph:
 
 def largest_weak_component(graph: nx.DiGraph) -> nx.DiGraph:
     """
-    Return a copy of the largest weakly connected component.
+    Returns a copy of the largest weakly connected component.
+
+    Parameters
+    ----------
+    graph : networkx.DiGraph
+        A directed graph.
+
+    Returns
+    -------
+    networkx.DiGraph
+        A copy of the largest weakly connected component.
     """
     if graph.number_of_nodes() == 0:
         raise ValueError("Graph is empty.")
@@ -47,7 +69,17 @@ def largest_weak_component(graph: nx.DiGraph) -> nx.DiGraph:
 
 def largest_strong_component(graph: nx.DiGraph) -> nx.DiGraph:
     """
-    Return a copy of the largest strongly connected component.
+    Returns a copy of the largest strongly connected component.
+
+    Parameters
+    ----------
+    graph : networkx.DiGraph
+        A directed graph.
+
+    Returns
+    -------
+    networkx.DiGraph
+        A copy of the largest strongly connected component.
     """
     if graph.number_of_nodes() == 0:
         raise ValueError("Graph is empty.")

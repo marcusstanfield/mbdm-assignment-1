@@ -16,18 +16,18 @@ from network_analysis.plots import (
 
 
 def main() -> None:
-    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
     csv_dir = RESULTS_DIR / "csv"
     image_dir = RESULTS_DIR / "img"
-    csv_dir.mkdir(parents=True, exist_ok=True)
-    image_dir.mkdir(parents=True, exist_ok=True)
+    RESULTS_DIR.mkdir(exist_ok=True)
+    csv_dir.mkdir(exist_ok=True)
+    image_dir.mkdir(exist_ok=True)
 
     edges, nodes = load_dataset()
     graph = build_network(edges, nodes)
-    projection = graph.to_undirected()
+    undirected_graph = graph.to_undirected()
 
     summary = describe_network(graph)
-    comparison = compute_model_comparison(projection)
+    comparison = compute_model_comparison(undirected_graph)
     centrality_table = compute_centrality_table(graph)
     group_summary = summarize_groups(graph)
 
@@ -39,7 +39,7 @@ def main() -> None:
         "density",
         "reciprocity",
         "directed_clustering",
-        "projection_clustering",
+        "undirected_clustering",
         "largest_wcc_size",
         "largest_wcc_share",
         "largest_scc_size",
@@ -56,7 +56,7 @@ def main() -> None:
         "Density",
         "Reciprocity",
         "DirectedClustering",
-        "ProjectionClustering",
+        "UndirectedClustering",
         "LargestWCCSize",
         "LargestWCCShare",
         "LargestSCCSize",
@@ -70,7 +70,7 @@ def main() -> None:
     group_summary.to_csv(csv_dir / "group_summary.csv", index=False)
 
     save_degree_distribution_plot(graph, image_dir / "degree_distribution.png")
-    save_model_comparison_plot(projection, image_dir / "model_comparison.png")
+    save_model_comparison_plot(undirected_graph, image_dir / "model_comparison.png")
 
     print("Network analysis complete.")
     print(summary_df.to_string(index=False))
